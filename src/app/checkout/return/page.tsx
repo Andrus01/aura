@@ -45,14 +45,18 @@ export default async function ReturnPage({
 
       // Persist status on return too (webhook is authoritative, this is a fast path)
       if (reference) {
-        await prisma.order.updateMany({
-          where: { reference },
-          data: {
-            paymentStatus: status,
-            status:
-              status === "PAID" ? "paid" : status === "ABANDONED" ? "abandoned" : "pending",
-          },
-        });
+        try {
+          await prisma.order.updateMany({
+            where: { reference },
+            data: {
+              paymentStatus: status,
+              status:
+                status === "PAID" ? "paid" : status === "ABANDONED" ? "abandoned" : "pending",
+            },
+          });
+        } catch (error) {
+          console.error("Order status update skipped (DB unavailable):", error);
+        }
       }
     } catch {
       status = "UNKNOWN";

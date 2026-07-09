@@ -32,9 +32,14 @@ export interface AdminOrder {
 }
 
 export async function getOrders(): Promise<AdminOrder[]> {
-  const rows = await prisma.order.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { items: { orderBy: { productName: "asc" } } },
-  });
-  return rows as unknown as AdminOrder[];
+  try {
+    const rows = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { items: { orderBy: { productName: "asc" } } },
+    });
+    return rows as unknown as AdminOrder[];
+  } catch (error) {
+    console.error("Order DB unavailable:", error);
+    return [];
+  }
 }
