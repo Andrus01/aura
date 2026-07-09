@@ -1,0 +1,96 @@
+// Aura & Ood — Morning Spirit
+// SQLite database schema. Admin-editable seed lives in prisma/seed.ts
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  name        String
+  subtitle    String // e.g. "Eau de Parfum"
+  volume      String // e.g. "100ml"
+  priceCents  Int // price in euro cents — easy to edit in seed
+  currency    String         @default("EUR")
+  stock       Int            @default(100)
+  shortDesc   String // card / listing copy
+  longDesc    String // detail copy
+  concentration String        @default("Eau de Parfum")
+  badge       String? // optional "Signature" / "Avastus"
+  featured    Boolean        @default(false)
+  order       Int            @default(0)
+  images      ProductImage[]
+  notes       Note[]
+  orderItems  OrderItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+}
+
+// Fragrance pyramid notes attached to a product
+model Note {
+  id        String  @id @default(cuid())
+  tier      String // "top" | "heart" | "base"
+  name      String
+  order     Int     @default(0)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  reference      String      @unique
+  customerName   String
+  email          String
+  phone          String
+  deliveryMethod String      @default("courier")
+  comments       String?
+  subtotalCents  Int
+  shippingCents  Int         @default(0)
+  currency       String      @default("EUR")
+  status         String      @default("demo") // order lifecycle: demo | pending | paid | abandoned
+
+  // --- Montonio payment ---
+  paymentStatus   String  @default("pending") // pending | PAID | PENDING | ABANDONED
+  paymentMethod   String  @default("demo") // demo | montonio
+  paymentProvider String? // selected bank code, e.g. "seb", "lhv"
+  montonioUuid    String? // Montonio order uuid
+
+  // --- Montonio shipping ---
+  shippingCarrier    String? // e.g. "omniva", "dpd"
+  shippingMethodType String? // "pickupPoint" | "courier"
+  pickupPointId      String?
+  pickupPointName    String?
+  shipmentStatus     String? // null | registered | failed
+
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  productSlug   String
+  productName   String
+  volume        String
+  unitPriceCents Int
+  quantity      Int
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  product       Product? @relation(fields: [productId], references: [id])
+  productId     String?
+}

@@ -1,0 +1,11 @@
+/node_modules
+/.next
+/out
+/build
+*.log
+.DS_Store
+.env
+/.frames
+# Keep the SQLite dev db out of VCS
+/prisma/dev.db
+/prisma/dev.db-journal
