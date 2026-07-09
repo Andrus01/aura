@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import CheckoutClient from "./CheckoutClient";
 import { montonio, getPaymentMethods } from "@/lib/montonio";
+import { getI18n } from "@/lib/i18n/server";
 
 export const metadata: Metadata = {
   title: "Vormista tellimus",
@@ -20,13 +21,18 @@ const PARCEL_CARRIERS = [
 
 export default async function CheckoutPage() {
   const configured = montonio.isConfigured();
-  const banks = configured ? await getPaymentMethods() : [];
+  const [banks, { locale, dict }] = await Promise.all([
+    configured ? getPaymentMethods() : Promise.resolve([]),
+    getI18n(),
+  ]);
 
   return (
     <CheckoutClient
       montonioConfigured={configured}
       banks={banks}
       carriers={PARCEL_CARRIERS}
+      dict={dict}
+      locale={locale}
     />
   );
 }

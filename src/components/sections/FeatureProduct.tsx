@@ -4,13 +4,14 @@ import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import type { Product } from "@/lib/types";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
-import { content } from "@/lib/content";
 import { cx } from "@/lib/format";
 
 /** Single hero product with an image gallery (bottle ⇄ packaging) + buy box. */
-export default function FeatureProduct({ product }: { product: Product }) {
+export default function FeatureProduct({ product, dict }: { product: Product; dict: Dictionary }) {
+  const t = dict.shop;
   const add = useCart((s) => s.add);
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState(0);
@@ -98,7 +99,7 @@ export default function FeatureProduct({ product }: { product: Product }) {
 
         {/* Notes summary */}
         <div className="mt-7 flex flex-wrap gap-2">
-          {["Sitrus", "Valge tee", "Muskus"].map((n) => (
+          {t.notesSummary.map((n) => (
             <span
               key={n}
               className="glass rounded-full px-3.5 py-1.5 font-sans text-[0.64rem] uppercase tracking-luxe text-cream/80"
@@ -110,14 +111,14 @@ export default function FeatureProduct({ product }: { product: Product }) {
 
         <div className="mt-9 flex items-end justify-between gap-4">
           <div>
-            <p className="font-sans text-[0.6rem] uppercase tracking-luxe text-cream/40">Hind</p>
+            <p className="font-sans text-[0.6rem] uppercase tracking-luxe text-cream/40">{t.price}</p>
             <p className="font-serif text-4xl text-gold">{formatPrice(product.priceCents)}</p>
           </div>
           <div className="flex items-center gap-4 rounded-full border border-cream/20 px-4 py-3">
             <button
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               className="text-cream/70 transition-colors hover:text-gold"
-              aria-label="Vähem"
+              aria-label={dict.cart.less}
             >
               −
             </button>
@@ -125,7 +126,7 @@ export default function FeatureProduct({ product }: { product: Product }) {
             <button
               onClick={() => setQty((q) => q + 1)}
               className="text-cream/70 transition-colors hover:text-gold"
-              aria-label="Rohkem"
+              aria-label={dict.cart.more}
             >
               +
             </button>
@@ -139,7 +140,7 @@ export default function FeatureProduct({ product }: { product: Product }) {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
-            {justAdded ? content.shop.added : content.shop.add}
+            {justAdded ? t.added : t.add}
           </motion.span>
         </button>
       </div>

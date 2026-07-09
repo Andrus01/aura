@@ -9,3 +9,6 @@
 # Keep the SQLite dev db out of VCS
 /prisma/dev.db
 /prisma/dev.db-journal
+
+# Local Netlify folder
+.netlify

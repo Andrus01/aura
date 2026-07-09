@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { Reveal } from "@/components/motion/Reveal";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { SplitTitle } from "@/components/motion/SplitTitle";
 
-export default function ProductReveal() {
+export default function ProductReveal({ dict }: { dict: Dictionary }) {
+  const t = dict.reveal;
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -45,21 +48,21 @@ export default function ProductReveal() {
         {/* Copy + callouts */}
         <div>
           <Reveal>
-            <span className="eyebrow">{content.reveal.eyebrow}</span>
+            <span className="eyebrow">{t.eyebrow}</span>
           </Reveal>
-          <Reveal delay={1}>
-            <h2 className="display mt-6 text-[clamp(2rem,5vw,3.8rem)] text-cream">
-              {content.reveal.title}
-            </h2>
-          </Reveal>
+          <SplitTitle
+            text={t.title}
+            delay={0.1}
+            className="display mt-6 text-[clamp(2rem,5vw,3.8rem)] text-cream"
+          />
           <Reveal delay={2}>
             <p className="mt-6 max-w-md font-sans text-[1rem] leading-relaxed text-cream/65">
-              {content.reveal.body}
+              {t.body}
             </p>
           </Reveal>
 
           <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-cream/10 bg-cream/10">
-            {content.reveal.callouts.map((c) => (
+            {t.callouts.map((c) => (
               <Reveal key={c.label} className="bg-ink-soft p-6">
                 <p className="font-sans text-[0.62rem] uppercase tracking-luxe text-gold/70">
                   {c.label}
@@ -79,7 +82,7 @@ export default function ProductReveal() {
           { src: "/optimized/package-spotlight.webp", alt: "Must-kuldne pakend" },
           { src: "/optimized/dawn-sea.webp", alt: "Koidiku meri" },
         ].map((img, i) => (
-          <Reveal key={img.src} delay={i} className="relative aspect-[3/4] overflow-hidden rounded-xl">
+          <ImageReveal key={img.src} delay={i} className="relative aspect-[3/4] overflow-hidden rounded-xl">
             <Image
               src={img.src}
               alt={img.alt}
@@ -87,7 +90,7 @@ export default function ProductReveal() {
               sizes="(max-width:768px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 ease-luxe hover:scale-105"
             />
-          </Reveal>
+          </ImageReveal>
         ))}
       </div>
     </section>

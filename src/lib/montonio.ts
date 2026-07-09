@@ -14,6 +14,8 @@ import jwt from "jsonwebtoken";
 const ENV = (process.env.MONTONIO_ENV || "sandbox").toLowerCase();
 const ACCESS_KEY = process.env.MONTONIO_ACCESS_KEY || "";
 const SECRET_KEY = process.env.MONTONIO_SECRET_KEY || "";
+// Master switch — set MONTONIO_ENABLED=false in .env to pause payments + shipping.
+const ENABLED = process.env.MONTONIO_ENABLED !== "false";
 
 const BASES = {
   sandbox: {
@@ -31,7 +33,7 @@ const base = ENV === "live" ? BASES.live : BASES.sandbox;
 export const montonio = {
   env: ENV,
   isConfigured(): boolean {
-    return !!ACCESS_KEY && !!SECRET_KEY;
+    return ENABLED && !!ACCESS_KEY && !!SECRET_KEY;
   },
 };
 

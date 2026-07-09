@@ -3,10 +3,14 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { useCart } from "@/store/cart";
+import { SplitTitle } from "@/components/motion/SplitTitle";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { AmbientDust } from "@/components/motion/AmbientDust";
 
-export default function FinalCta() {
+export default function FinalCta({ dict }: { dict: Dictionary }) {
+  const content = { finalCta: dict.finalCta };
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -32,6 +36,7 @@ export default function FinalCta() {
       </motion.div>
       <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/40 to-ink" />
       <div className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_240px_80px_rgba(0,0,0,0.75)]" />
+      <AmbientDust className="z-[5]" />
 
       <div className="container-luxe relative z-10 text-center">
         <motion.span
@@ -43,15 +48,12 @@ export default function FinalCta() {
         >
           {content.finalCta.eyebrow}
         </motion.span>
-        <motion.h2
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        <SplitTitle
+          as="h2"
+          text={content.finalCta.title}
+          delay={0.1}
           className="display text-glow mx-auto mt-6 max-w-4xl text-[clamp(2.6rem,8vw,6.5rem)] text-cream"
-        >
-          {content.finalCta.title}
-        </motion.h2>
+        />
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -68,9 +70,11 @@ export default function FinalCta() {
           transition={{ duration: 1, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="mt-10"
         >
-          <button onClick={open} className="btn-gold px-12 py-5">
-            {content.finalCta.cta}
-          </button>
+          <Magnetic>
+            <button onClick={open} className="btn-gold px-12 py-5">
+              {content.finalCta.cta}
+            </button>
+          </Magnetic>
         </motion.div>
       </div>
     </section>

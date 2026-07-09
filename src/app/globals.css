@@ -46,13 +46,26 @@
     @apply font-serif font-light leading-[0.92] tracking-[-0.01em];
   }
   .btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-4
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-8 py-4
            font-sans text-[0.72rem] uppercase tracking-luxe transition-all duration-500 ease-luxe
            disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-gold {
     @apply btn bg-gradient-to-r from-gold-deep via-gold to-gold-light text-ink
            hover:shadow-[0_10px_40px_-8px_rgba(201,161,90,0.6)] hover:brightness-110;
+  }
+  /* Light sweep across the gold button on hover */
+  .btn-gold::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 42%, rgba(255, 250, 235, 0.55) 50%, transparent 58%);
+    transform: translateX(-130%);
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .btn-gold:hover::before {
+    transform: translateX(130%);
   }
   .btn-ghost {
     @apply btn border border-cream/25 text-cream hover:border-gold hover:text-gold
@@ -103,6 +116,46 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Legal / info page prose */
+.legal h2 {
+  @apply mt-11 mb-3 font-serif text-2xl text-cream md:text-3xl;
+}
+.legal h3 {
+  @apply mt-7 mb-2 font-sans text-[0.8rem] uppercase tracking-luxe text-gold;
+}
+.legal p {
+  @apply mb-4 font-sans text-[0.95rem] leading-relaxed text-cream/70;
+}
+.legal ul,
+.legal ol {
+  @apply mb-5 space-y-2 pl-5 font-sans text-[0.95rem] leading-relaxed text-cream/70;
+}
+.legal ul {
+  @apply list-disc;
+}
+.legal ol {
+  @apply list-decimal;
+}
+.legal li {
+  @apply pl-1 marker:text-gold/60;
+}
+.legal a {
+  @apply text-gold underline decoration-gold/40 underline-offset-2 transition-colors hover:decoration-gold;
+}
+.legal strong {
+  @apply font-medium text-cream;
+}
+.legal table {
+  @apply my-6 w-full border-collapse text-left text-sm text-cream/70;
+}
+.legal th,
+.legal td {
+  @apply border border-cream/10 px-4 py-3;
+}
+.legal th {
+  @apply bg-cream/[0.03] font-sans text-[0.66rem] uppercase tracking-luxe text-cream/80;
 }
 
 @media (prefers-reduced-motion: reduce) {

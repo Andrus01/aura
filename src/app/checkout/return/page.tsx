@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { verifyToken, montonio } from "@/lib/montonio";
 import { prisma } from "@/lib/db";
+import { getI18n } from "@/lib/i18n/server";
 import ClearCart from "./ClearCart";
 
 export const metadata: Metadata = {
@@ -26,7 +27,8 @@ export default async function ReturnPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const sp = await searchParams;
+  const [sp, { dict }] = await Promise.all([searchParams, getI18n()]);
+  const t = dict.paymentReturn;
   const token = getToken(sp);
 
   let status = "UNKNOWN";
@@ -60,16 +62,8 @@ export default async function ReturnPage({
   const paid = status === "PAID";
   const pending = status === "PENDING";
 
-  const heading = paid
-    ? "Aitäh! Makse õnnestus."
-    : pending
-      ? "Makse ootel"
-      : "Makse ei õnnestunud";
-  const body = paid
-    ? "Sinu tellimus on kinnitatud. Saadame peagi kinnituse e-postiga."
-    : pending
-      ? "Makse on veel töötlemisel. Uuendame staatuse, niipea kui pank kinnitab."
-      : "Makset ei viidud lõpuni. Võid ostukorvi juurde tagasi minna ja uuesti proovida.";
+  const heading = paid ? t.paidTitle : pending ? t.pendingTitle : t.failedTitle;
+  const body = paid ? t.paidBody : pending ? t.pendingBody : t.failedBody;
 
   return (
     <main className="flex min-h-[100svh] items-center justify-center bg-ink px-6 py-24">
@@ -90,11 +84,11 @@ export default async function ReturnPage({
         <div className="mt-10 flex items-center justify-center gap-4">
           {!paid && (
             <Link href="/checkout" className="btn-gold">
-              Proovi uuesti
+              {t.retry}
             </Link>
           )}
           <Link href="/" className="btn-ghost">
-            Tagasi poodi
+            {t.back}
           </Link>
         </div>
       </div>

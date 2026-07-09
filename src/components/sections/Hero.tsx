@@ -3,12 +3,19 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { content } from "@/lib/content";
 import { useCart } from "@/store/cart";
 import type { Product } from "@/lib/types";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { formatPrice } from "@/lib/format";
+import { SplitTitle } from "@/components/motion/SplitTitle";
+import { Magnetic } from "@/components/motion/Magnetic";
+import { AmbientDust } from "@/components/motion/AmbientDust";
+import { introWillPlay, INTRO_DURATION } from "@/lib/intro";
 
-export default function Hero({ product }: { product: Product | null }) {
+export default function Hero({ product, dict }: { product: Product | null; dict: Dictionary }) {
+  const t = dict.hero;
+  // Hold the entrance until the intro curtain has lifted (first visit only)
+  const base = introWillPlay() ? INTRO_DURATION - 0.4 : 0;
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -63,6 +70,9 @@ export default function Hero({ product }: { product: Product | null }) {
       <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/40" />
       <div className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_220px_60px_rgba(0,0,0,0.7)]" />
 
+      {/* Rising gold light dust */}
+      <AmbientDust className="z-[5]" />
+
       {/* Content */}
       <motion.div
         style={{ y: contentY, opacity: contentOpacity }}
@@ -71,57 +81,62 @@ export default function Hero({ product }: { product: Product | null }) {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, delay: base + 0.2, ease: [0.16, 1, 0.3, 1] }}
           className="eyebrow mb-6"
         >
-          {content.hero.eyebrow}
+          {t.eyebrow}
         </motion.p>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        <SplitTitle
+          as="h1"
+          text="Morning Spirit"
+          mode="chars"
+          mount
+          delay={base + 0.35}
+          duration={1.2}
           className="display text-glow text-[clamp(3.4rem,13vw,11rem)] text-cream"
-        >
-          {content.hero.title}
-        </motion.h1>
+        />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, delay: base + 0.85, ease: [0.16, 1, 0.3, 1] }}
           className="mt-2 font-serif text-[clamp(1.4rem,4vw,2.6rem)] italic text-gold-light"
         >
-          {content.hero.subtitle}
+          Koidiku Kaja
           <span className="ml-3 align-middle text-sm not-italic tracking-luxe text-cream/50">
-            / {content.storyTitleEn}
+            / {t.subtitleTag}
           </span>
         </motion.p>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, delay: base + 1, ease: [0.16, 1, 0.3, 1] }}
           className="mt-7 max-w-xl font-sans text-[0.98rem] leading-relaxed text-cream/75"
         >
-          {content.hero.lead}
+          {t.lead}
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1, delay: base + 1.15, ease: [0.16, 1, 0.3, 1] }}
           className="mt-10 flex flex-wrap items-center gap-4"
         >
-          <button onClick={scrollDown} className="btn-gold">
-            {content.hero.ctaPrimary}
-          </button>
-          <button onClick={addHero} className="btn-ghost">
-            {content.hero.ctaSecondary}
-            {product && (
-              <span className="ml-2 text-gold">· {formatPrice(product.priceCents)}</span>
-            )}
-          </button>
+          <Magnetic>
+            <button onClick={scrollDown} className="btn-gold">
+              {t.ctaPrimary}
+            </button>
+          </Magnetic>
+          <Magnetic>
+            <button onClick={addHero} className="btn-ghost">
+              {t.ctaSecondary}
+              {product && (
+                <span className="ml-2 text-gold">· {formatPrice(product.priceCents)}</span>
+              )}
+            </button>
+          </Magnetic>
         </motion.div>
       </motion.div>
 
@@ -129,10 +144,10 @@ export default function Hero({ product }: { product: Product | null }) {
       <button
         onClick={scrollDown}
         className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2"
-        aria-label={content.hero.scrollCue}
+        aria-label={t.scrollCue}
       >
         <span className="font-sans text-[0.6rem] uppercase tracking-wideluxe text-cream/50">
-          {content.hero.scrollCue}
+          {t.scrollCue}
         </span>
         <span className="relative flex h-10 w-6 justify-center rounded-full border border-cream/30">
           <span className="mt-2 h-2 w-px animate-scroll-cue bg-gold" />

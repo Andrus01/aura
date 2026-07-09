@@ -1,15 +1,18 @@
 import Image from "next/image";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { Parallax } from "@/components/motion/Parallax";
 import { Reveal } from "@/components/motion/Reveal";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { SplitTitle } from "@/components/motion/SplitTitle";
 
-export default function PackagingSection() {
+export default function PackagingSection({ dict }: { dict: Dictionary }) {
+  const content = { packaging: dict.packaging };
   return (
     <section className="relative overflow-hidden bg-ink py-28 md:py-40">
       <div className="container-luxe grid items-center gap-14 md:grid-cols-2 md:gap-20">
         <div className="relative">
           <Parallax offset={50} className="relative aspect-[4/5] overflow-hidden rounded-2xl">
-            <div className="relative h-[115%]">
+            <ImageReveal className="relative h-[115%]">
               <Image
                 src="/optimized/package-gold.webp"
                 alt="Aura & Ood must-kuldne pakend kuldses valguses"
@@ -17,7 +20,7 @@ export default function PackagingSection() {
                 sizes="(max-width:768px) 100vw, 50vw"
                 className="object-cover"
               />
-            </div>
+            </ImageReveal>
           </Parallax>
           {/* Floating secondary image */}
           <div className="absolute -bottom-8 -right-4 hidden w-40 overflow-hidden rounded-xl border border-gold/20 shadow-2xl md:block lg:w-52">
@@ -37,11 +40,11 @@ export default function PackagingSection() {
           <Reveal>
             <span className="eyebrow">{content.packaging.eyebrow}</span>
           </Reveal>
-          <Reveal delay={1}>
-            <h2 className="display mt-6 text-[clamp(2rem,5vw,3.6rem)] text-cream">
-              {content.packaging.title}
-            </h2>
-          </Reveal>
+          <SplitTitle
+            text={content.packaging.title}
+            delay={0.1}
+            className="display mt-6 text-[clamp(2rem,5vw,3.6rem)] text-cream"
+          />
           <Reveal delay={2}>
             <p className="mt-6 max-w-md font-sans text-[1rem] leading-relaxed text-cream/65">
               {content.packaging.body}

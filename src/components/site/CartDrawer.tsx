@@ -6,10 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export default function CartDrawer() {
+export default function CartDrawer({ dict }: { dict: Dictionary }) {
   const { isOpen, close, lines, setQty, remove, subtotalCents } = useCart();
+  const t = dict.cart;
 
   // Lock scroll while open
   useEffect(() => {
@@ -43,14 +44,14 @@ export default function CartDrawer() {
             exit={{ x: "100%" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             role="dialog"
-            aria-label={content.cart.title}
+            aria-label={t.title}
           >
             <div className="flex items-center justify-between border-b border-cream/10 px-6 py-5">
-              <h2 className="font-serif text-2xl text-cream">{content.cart.title}</h2>
+              <h2 className="font-serif text-2xl text-cream">{t.title}</h2>
               <button
                 onClick={close}
                 className="text-cream/60 transition-colors hover:text-gold"
-                aria-label="Sulge"
+                aria-label={t.close}
               >
                 <span className="text-2xl leading-none">×</span>
               </button>
@@ -58,9 +59,9 @@ export default function CartDrawer() {
 
             {lines.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
-                <p className="font-serif text-2xl text-cream/70">{content.cart.empty}</p>
+                <p className="font-serif text-2xl text-cream/70">{t.empty}</p>
                 <button onClick={close} className="btn-ghost">
-                  {content.cart.emptyCta}
+                  {t.emptyCta}
                 </button>
               </div>
             ) : (
@@ -88,7 +89,7 @@ export default function CartDrawer() {
                             <button
                               onClick={() => setQty(l.slug, l.quantity - 1)}
                               className="text-cream/70 hover:text-gold"
-                              aria-label="Vähem"
+                              aria-label={t.less}
                             >
                               −
                             </button>
@@ -96,7 +97,7 @@ export default function CartDrawer() {
                             <button
                               onClick={() => setQty(l.slug, l.quantity + 1)}
                               className="text-cream/70 hover:text-gold"
-                              aria-label="Rohkem"
+                              aria-label={t.more}
                             >
                               +
                             </button>
@@ -105,7 +106,7 @@ export default function CartDrawer() {
                             onClick={() => remove(l.slug)}
                             className="text-[0.66rem] uppercase tracking-luxe text-cream/40 hover:text-amber-glow"
                           >
-                            {content.cart.remove}
+                            {t.remove}
                           </button>
                         </div>
                       </div>
@@ -116,15 +117,15 @@ export default function CartDrawer() {
                 <div className="border-t border-cream/10 px-6 py-6">
                   <div className="mb-4 flex items-center justify-between">
                     <span className="text-[0.72rem] uppercase tracking-luxe text-cream/60">
-                      {content.cart.subtotal}
+                      {t.subtotal}
                     </span>
                     <span className="font-serif text-2xl text-cream">{formatPrice(subtotal)}</span>
                   </div>
                   <Link href="/checkout" onClick={close} className="btn-gold w-full">
-                    {content.cart.checkout}
+                    {t.checkout}
                   </Link>
                   <p className="mt-3 text-center text-[0.64rem] uppercase tracking-luxe text-cream/40">
-                    {content.cart.note}
+                    {t.note}
                   </p>
                 </div>
               </>

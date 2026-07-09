@@ -344,6 +344,7 @@ function PaymentBadge({ status }: { status: string }) {
     PENDING: { cls: "border-cream/25 text-cream/60", label: "Makse ootel" },
     ABANDONED: { cls: "border-amber-glow/40 text-amber-glow", label: "Katkestatud" },
     PAYMENT_FAILED: { cls: "border-amber-glow/40 text-amber-glow", label: "Ebaõnnestus" },
+    INVOICE: { cls: "border-dawn-mist/40 text-dawn-mist", label: "Arve ootel" },
     DEMO: { cls: "border-cream/15 text-cream/40", label: "Demo" },
   };
   const m = map[s] ?? { cls: "border-cream/15 text-cream/40", label: status };

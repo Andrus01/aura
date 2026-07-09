@@ -7,8 +7,9 @@ import { motion } from "framer-motion";
 import { useCart } from "@/store/cart";
 import { useHydrated } from "@/lib/hooks";
 import { formatPrice } from "@/lib/format";
-import { content } from "@/lib/content";
 import { shippingCentsFor } from "@/lib/shipping";
+import LanguageSwitcher from "@/components/site/LanguageSwitcher";
+import type { Dictionary, Locale } from "@/lib/i18n/dictionaries";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -31,13 +32,19 @@ export default function CheckoutClient({
   montonioConfigured,
   banks,
   carriers,
+  dict,
+  locale,
 }: {
   montonioConfigured: boolean;
   banks: Bank[];
   carriers: Carrier[];
+  dict: Dictionary;
+  locale: Locale;
 }) {
+  const c = dict.checkout;
+  const cart = dict.cart;
   const hydrated = useHydrated();
-  const { lines, subtotalCents, clear } = useCart();
+  const { lines, subtotalCents, clear, setQty, remove } = useCart();
   const [status, setStatus] = useState<Status>("idle");
   const [reference, setReference] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -46,10 +53,10 @@ export default function CheckoutClient({
     email: "",
     phone: "",
     deliveryMethod: "pickup",
+    pickupText: "",
     comments: "",
   });
 
-  // Montonio state
   const [bank, setBank] = useState<string>("");
   const [carrier, setCarrier] = useState<string>(carriers[0]?.code ?? "omniva");
   const [points, setPoints] = useState<PickupPoint[]>([]);
@@ -59,13 +66,11 @@ export default function CheckoutClient({
   const subtotal = hydrated ? subtotalCents() : 0;
   const shipping = shippingCentsFor(form.deliveryMethod);
   const total = subtotal + shipping;
-  const c = content.checkout;
   const isPickup = form.deliveryMethod === "pickup";
 
   const update = (k: keyof typeof form, v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
 
-  // Fetch pickup points when carrier changes (only in pickup mode + configured)
   useEffect(() => {
     if (!montonioConfigured || !isPickup) return;
     let active = true;
@@ -89,16 +94,25 @@ export default function CheckoutClient({
     setError("");
 
     if (montonioConfigured && !bank) {
-      setError("Palun vali pank.");
+      setError(c.chooseBank);
       return;
     }
     if (montonioConfigured && isPickup && points.length > 0 && !pointId) {
-      setError("Palun vali pakiautomaat.");
+      setError(c.choosePoint);
+      return;
+    }
+    if (!montonioConfigured && isPickup && !form.pickupText.trim()) {
+      setError(c.enterPoint);
       return;
     }
 
     setStatus("submitting");
     const selectedPoint = points.find((p) => p.id === pointId);
+    const pickupName = montonioConfigured
+      ? selectedPoint?.name
+      : isPickup
+        ? form.pickupText.trim()
+        : undefined;
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -106,29 +120,27 @@ export default function CheckoutClient({
         body: JSON.stringify({
           ...form,
           provider: bank || undefined,
-          shippingCarrier: isPickup ? carrier : undefined,
-          pickupPointId: selectedPoint?.id,
-          pickupPointName: selectedPoint?.name,
+          shippingCarrier: montonioConfigured && isPickup ? carrier : undefined,
+          pickupPointId: montonioConfigured ? selectedPoint?.id : undefined,
+          pickupPointName: pickupName,
           items: lines.map((l) => ({ slug: l.slug, quantity: l.quantity })),
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Midagi läks valesti.");
+        setError(data.error ?? c.error);
         setStatus("error");
         return;
       }
-      // Montonio: redirect to hosted bank-link payment
       if (data.redirectUrl) {
         window.location.href = data.redirectUrl;
         return;
       }
-      // Demo mode
       setReference(data.reference);
       setStatus("success");
       clear();
     } catch {
-      setError("Ühenduse viga. Proovi uuesti.");
+      setError(c.connError);
       setStatus("error");
     }
   }
@@ -163,54 +175,35 @@ export default function CheckoutClient({
   return (
     <main className="min-h-[100svh] bg-ink px-6 py-24 md:py-32">
       <div className="mx-auto max-w-5xl">
-        <Link
-          href="/"
-          className="link-underline font-sans text-[0.66rem] uppercase tracking-luxe text-cream/50"
-        >
-          ← {c.back}
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href="/"
+            className="link-underline font-sans text-[0.66rem] uppercase tracking-luxe text-cream/50"
+          >
+            ← {c.back}
+          </Link>
+          <LanguageSwitcher current={locale} />
+        </div>
 
         <h1 className="display mt-8 text-[clamp(2.4rem,6vw,4rem)] text-cream">{c.title}</h1>
         <p className="mt-4 max-w-lg font-sans text-[0.92rem] leading-relaxed text-cream/55">
-          {montonioConfigured
-            ? "Turvaline makse Montonio pangalingi kaudu. Vali pank ja tarneviis."
-            : c.subtitle}
+          {montonioConfigured ? c.subtitleMontonio : c.subtitleDemo}
         </p>
 
         {hydrated && lines.length === 0 ? (
           <div className="mt-16 rounded-2xl border border-cream/10 bg-ink-soft p-12 text-center">
-            <p className="font-serif text-2xl text-cream/70">{content.cart.empty}</p>
+            <p className="font-serif text-2xl text-cream/70">{cart.empty}</p>
             <Link href="/#pood" className="btn-gold mt-8 inline-flex">
-              {content.cart.emptyCta}
+              {cart.emptyCta}
             </Link>
           </div>
         ) : (
           <div className="mt-14 grid gap-12 lg:grid-cols-[1.1fr_0.9fr]">
             <form onSubmit={submit} className="space-y-6">
-              <Field
-                label={c.fields.name}
-                value={form.name}
-                onChange={(v) => update("name", v)}
-                required
-                autoComplete="name"
-              />
+              <Field label={c.fields.name} value={form.name} onChange={(v) => update("name", v)} required autoComplete="name" />
               <div className="grid gap-6 sm:grid-cols-2">
-                <Field
-                  label={c.fields.email}
-                  type="email"
-                  value={form.email}
-                  onChange={(v) => update("email", v)}
-                  required
-                  autoComplete="email"
-                />
-                <Field
-                  label={c.fields.phone}
-                  type="tel"
-                  value={form.phone}
-                  onChange={(v) => update("phone", v)}
-                  required
-                  autoComplete="tel"
-                />
+                <Field label={c.fields.email} type="email" value={form.email} onChange={(v) => update("email", v)} required autoComplete="email" />
+                <Field label={c.fields.phone} type="tel" value={form.phone} onChange={(v) => update("phone", v)} required autoComplete="tel" />
               </div>
 
               {/* Delivery */}
@@ -241,7 +234,7 @@ export default function CheckoutClient({
                 <div className="grid gap-4 rounded-xl border border-cream/10 bg-ink-soft p-5">
                   <div>
                     <label className="mb-2 block font-sans text-[0.6rem] uppercase tracking-luxe text-cream/50">
-                      Vedaja
+                      {c.carrier}
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {carriers.map((ca) => (
@@ -262,17 +255,17 @@ export default function CheckoutClient({
                   </div>
                   <div>
                     <label className="mb-2 block font-sans text-[0.6rem] uppercase tracking-luxe text-cream/50">
-                      Pakiautomaat
+                      {c.pickupPoint}
                     </label>
                     {loadingPoints ? (
-                      <p className="text-sm text-cream/40">Laen pakiautomaate…</p>
+                      <p className="text-sm text-cream/40">{c.loadingPoints}</p>
                     ) : points.length > 0 ? (
                       <select
                         value={pointId}
                         onChange={(e) => setPointId(e.target.value)}
                         className="w-full rounded-xl border border-cream/15 bg-ink px-4 py-3 font-sans text-sm text-cream outline-none focus:border-gold"
                       >
-                        <option value="">— Vali pakiautomaat —</option>
+                        <option value="">{c.selectPoint}</option>
                         {points.map((p) => (
                           <option key={p.id} value={p.id}>
                             {p.name}
@@ -281,10 +274,41 @@ export default function CheckoutClient({
                         ))}
                       </select>
                     ) : (
-                      <p className="text-sm text-cream/40">
-                        Sellel vedajal pole hetkel sandbox-keskkonnas pakiautomaate saadaval.
-                      </p>
+                      <p className="text-sm text-cream/40">{c.noPoints}</p>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Free-text parcel machine (invoice mode) */}
+              {!montonioConfigured && isPickup && (
+                <div>
+                  <label className="mb-2 block font-sans text-[0.64rem] uppercase tracking-luxe text-cream/50">
+                    {c.pickupPoint} <span className="text-gold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={form.pickupText}
+                    onChange={(e) => update("pickupText", e.target.value)}
+                    placeholder={c.pickupPlaceholder}
+                    className="w-full rounded-xl border border-cream/15 bg-ink-soft px-4 py-3 font-sans text-sm text-cream outline-none transition-colors placeholder:text-cream/30 focus:border-gold"
+                  />
+                </div>
+              )}
+
+              {/* Payment method — invoice (Montonio paused) */}
+              {!montonioConfigured && (
+                <div>
+                  <label className="mb-2 block font-sans text-[0.64rem] uppercase tracking-luxe text-cream/50">
+                    {c.paymentTitle}
+                  </label>
+                  <div className="rounded-xl border border-gold/40 bg-cream/[0.03] px-5 py-4">
+                    <p className="font-sans text-[0.8rem] uppercase tracking-luxe text-gold">
+                      {c.invoiceOption}
+                    </p>
+                    <p className="mt-2 font-sans text-[0.85rem] leading-relaxed text-cream/60">
+                      {c.invoiceNote}
+                    </p>
                   </div>
                 </div>
               )}
@@ -293,7 +317,7 @@ export default function CheckoutClient({
               {montonioConfigured && (
                 <div>
                   <label className="mb-2 block font-sans text-[0.64rem] uppercase tracking-luxe text-cream/50">
-                    Maksmine — pangalink
+                    {c.payLabel}
                   </label>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {banks.map((b) => (
@@ -323,7 +347,7 @@ export default function CheckoutClient({
                   onChange={(e) => update("comments", e.target.value)}
                   rows={3}
                   className="w-full resize-none rounded-xl border border-cream/15 bg-ink-soft px-4 py-3 font-sans text-sm text-cream outline-none transition-colors placeholder:text-cream/30 focus:border-gold"
-                  placeholder="Nt kättesaamise soovid…"
+                  placeholder={c.commentsPlaceholder}
                 />
               </div>
 
@@ -333,21 +357,17 @@ export default function CheckoutClient({
                 </p>
               )}
 
-              <button
-                type="submit"
-                disabled={status === "submitting"}
-                className="btn-gold w-full"
-              >
+              <button type="submit" disabled={status === "submitting"} className="btn-gold w-full">
                 {status === "submitting"
                   ? c.placing
                   : montonioConfigured
-                    ? `Maksa — ${formatPrice(total)}`
+                    ? `${c.pay} — ${formatPrice(total)}`
                     : c.place}
               </button>
 
               {montonioConfigured && (
                 <p className="text-center text-[0.6rem] uppercase tracking-luxe text-cream/35">
-                  Montonio {montonioConfigured ? "sandbox" : ""} · turvaline pangalink
+                  {c.secureNote}
                 </p>
               )}
             </form>
@@ -362,13 +382,41 @@ export default function CheckoutClient({
                       <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-ink-800">
                         <Image src={l.image} alt={l.name} fill sizes="64px" className="object-cover" />
                       </div>
-                      <div className="flex flex-1 flex-col justify-center">
+                      <div className="flex flex-1 flex-col justify-center gap-2">
                         <p className="font-serif text-lg leading-tight text-cream">{l.name}</p>
-                        <p className="text-[0.64rem] uppercase tracking-luxe text-cream/45">
-                          {l.volume} · {content.shop.qty} {l.quantity}
+                        <p className="text-[0.6rem] uppercase tracking-luxe text-cream/45">
+                          {l.volume}
                         </p>
+                        <div className="mt-1 flex items-center gap-3">
+                          <div className="flex items-center gap-3 rounded-full border border-cream/20 px-3 py-1">
+                            <button
+                              type="button"
+                              onClick={() => setQty(l.slug, l.quantity - 1)}
+                              className="text-cream/70 transition-colors hover:text-gold"
+                              aria-label={cart.less}
+                            >
+                              −
+                            </button>
+                            <span className="min-w-4 text-center text-xs text-cream">{l.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => setQty(l.slug, l.quantity + 1)}
+                              className="text-cream/70 transition-colors hover:text-gold"
+                              aria-label={cart.more}
+                            >
+                              +
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => remove(l.slug)}
+                            className="text-[0.58rem] uppercase tracking-luxe text-cream/35 transition-colors hover:text-amber-glow"
+                          >
+                            {cart.remove}
+                          </button>
+                        </div>
                       </div>
-                      <p className="self-center whitespace-nowrap font-sans text-sm text-gold">
+                      <p className="self-start whitespace-nowrap font-sans text-sm text-gold">
                         {formatPrice(l.priceCents * l.quantity)}
                       </p>
                     </div>
@@ -376,28 +424,24 @@ export default function CheckoutClient({
               </div>
               <div className="mt-7 space-y-2 border-t border-cream/10 pt-5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[0.7rem] uppercase tracking-luxe text-cream/55">
-                    {content.cart.subtotal}
-                  </span>
+                  <span className="text-[0.7rem] uppercase tracking-luxe text-cream/55">{cart.subtotal}</span>
                   <span className="font-sans text-sm text-cream/80">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[0.7rem] uppercase tracking-luxe text-cream/55">
-                    Tarne · {c.delivery[form.deliveryMethod as "pickup" | "store"]}
+                    {c.shipping} · {c.delivery[form.deliveryMethod as "pickup" | "store"]}
                   </span>
                   <span className="font-sans text-sm text-cream/80">
-                    {shipping === 0 ? "Tasuta" : formatPrice(shipping)}
+                    {shipping === 0 ? c.free : formatPrice(shipping)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-[0.72rem] uppercase tracking-luxe text-cream/70">
-                    Kokku
-                  </span>
+                  <span className="text-[0.72rem] uppercase tracking-luxe text-cream/70">{c.total}</span>
                   <span className="font-serif text-2xl text-cream">{formatPrice(total)}</span>
                 </div>
               </div>
               <p className="mt-4 text-center text-[0.62rem] uppercase tracking-luxe text-cream/40">
-                {montonioConfigured ? "Montonio sandbox · turvaline makse" : content.cart.note}
+                {montonioConfigured ? c.secureNote : c.invoiceOption}
               </p>
             </aside>
           </div>

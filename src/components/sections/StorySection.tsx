@@ -2,15 +2,17 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-const chapters = content.story.chapters;
+type Chapter = Dictionary["story"]["chapters"][number];
 
 function Chapter({
+  ch,
   progress,
   index,
   total,
 }: {
+  ch: Chapter;
   progress: MotionValue<number>;
   index: number;
   total: number;
@@ -28,8 +30,6 @@ function Chapter({
     [0, 1, 1, 0]
   );
   const y = useTransform(progress, [start, inPoint, end], [60, 0, -60]);
-
-  const ch = chapters[index];
 
   return (
     <motion.div
@@ -69,7 +69,8 @@ function Tick({
   return <motion.span style={{ opacity }} className="h-px w-10 bg-gold" />;
 }
 
-export default function StorySection() {
+export default function StorySection({ dict }: { dict: Dictionary }) {
+  const chapters = dict.story.chapters;
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -115,7 +116,7 @@ export default function StorySection() {
         {/* Section label */}
         <div className="container-luxe absolute left-0 right-0 top-24 z-10">
           <p className="eyebrow text-center">
-            {content.story.eyebrow} · {content.storyTitleEn}
+            {dict.story.eyebrow}
           </p>
         </div>
 
@@ -126,8 +127,8 @@ export default function StorySection() {
           ))}
         </div>
 
-        {chapters.map((_, i) => (
-          <Chapter key={i} progress={scrollYProgress} index={i} total={chapters.length} />
+        {chapters.map((ch, i) => (
+          <Chapter key={i} ch={ch} progress={scrollYProgress} index={i} total={chapters.length} />
         ))}
       </div>
     </section>

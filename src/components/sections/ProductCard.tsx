@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 import type { Product } from "@/lib/types";
 import { useCart } from "@/store/cart";
 import { formatPrice } from "@/lib/format";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export default function ProductCard({ product }: { product: Product }) {
+export default function ProductCard({ product, dict }: { product: Product; dict: Dictionary }) {
   const add = useCart((s) => s.add);
   const [qty, setQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
@@ -81,7 +81,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               className="text-cream/70 transition-colors hover:text-gold"
-              aria-label="Vähem"
+              aria-label={dict.cart.less}
             >
               −
             </button>
@@ -89,7 +89,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               onClick={() => setQty((q) => q + 1)}
               className="text-cream/70 transition-colors hover:text-gold"
-              aria-label="Rohkem"
+              aria-label={dict.cart.more}
             >
               +
             </button>
@@ -102,7 +102,7 @@ export default function ProductCard({ product }: { product: Product }) {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              {justAdded ? content.shop.added : content.shop.add}
+              {justAdded ? dict.shop.added : dict.shop.add}
             </motion.span>
           </button>
         </div>

@@ -1,7 +1,9 @@
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { Reveal } from "@/components/motion/Reveal";
+import { SplitTitle } from "@/components/motion/SplitTitle";
 
-export default function WhySection() {
+export default function WhySection({ dict }: { dict: Dictionary }) {
+  const content = { why: dict.why };
   return (
     <section className="relative bg-ink-soft py-28 md:py-36">
       <div className="container-luxe">
@@ -10,11 +12,11 @@ export default function WhySection() {
             <Reveal>
               <span className="eyebrow">{content.why.eyebrow}</span>
             </Reveal>
-            <Reveal delay={1}>
-              <h2 className="display mt-6 text-[clamp(2rem,5vw,3.6rem)] text-cream">
-                {content.why.title}
-              </h2>
-            </Reveal>
+            <SplitTitle
+              text={content.why.title}
+              delay={0.1}
+              className="display mt-6 text-[clamp(2rem,5vw,3.6rem)] text-cream"
+            />
           </div>
 
           <div className="grid gap-px overflow-hidden rounded-2xl border border-cream/10 bg-cream/10 sm:grid-cols-2">

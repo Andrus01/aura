@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { content } from "@/lib/content";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { Parallax } from "@/components/motion/Parallax";
 import { Reveal, RevealGroup, revealItem } from "@/components/motion/Reveal";
+import { ImageReveal } from "@/components/motion/ImageReveal";
+import { SplitTitle } from "@/components/motion/SplitTitle";
 import { motion } from "framer-motion";
 import { cx } from "@/lib/format";
 
@@ -30,28 +32,28 @@ function Notes({ notes }: { notes: readonly string[] }) {
   );
 }
 
-export default function PyramidSection() {
+export default function PyramidSection({ dict }: { dict: Dictionary }) {
   return (
     <section id="puramiid" className="relative bg-ink py-28 md:py-40">
       <div className="container-luxe">
         <div className="mx-auto max-w-2xl text-center">
           <Reveal>
-            <span className="eyebrow">{content.pyramid.eyebrow}</span>
+            <span className="eyebrow">{dict.pyramid.eyebrow}</span>
           </Reveal>
-          <Reveal delay={1}>
-            <h2 className="display mt-6 text-[clamp(2.2rem,6vw,4.4rem)] text-cream">
-              {content.pyramid.title}
-            </h2>
-          </Reveal>
+          <SplitTitle
+            text={dict.pyramid.title}
+            delay={0.1}
+            className="display mt-6 text-[clamp(2.2rem,6vw,4.4rem)] text-cream"
+          />
           <Reveal delay={2}>
             <p className="mx-auto mt-6 max-w-lg font-sans text-[1rem] leading-relaxed text-cream/60">
-              {content.pyramid.lead}
+              {dict.pyramid.lead}
             </p>
           </Reveal>
         </div>
 
         <div className="mt-24 space-y-24 md:space-y-40">
-          {content.pyramid.tiers.map((tier, i) => {
+          {dict.pyramid.tiers.map((tier, i) => {
             const flip = i % 2 === 1;
             return (
               <div
@@ -66,7 +68,7 @@ export default function PyramidSection() {
                   offset={60}
                   className="relative aspect-[4/5] overflow-hidden rounded-2xl"
                 >
-                  <div className="relative h-[118%]">
+                  <ImageReveal className="relative h-[118%]">
                     <Image
                       src={tierImages[tier.id]}
                       alt={`${tier.stage} — ${tier.name}`}
@@ -78,7 +80,7 @@ export default function PyramidSection() {
                     <span className="absolute left-6 top-6 font-serif text-7xl italic text-cream/25">
                       0{i + 1}
                     </span>
-                  </div>
+                  </ImageReveal>
                 </Parallax>
 
                 {/* Copy */}

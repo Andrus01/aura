@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useCart } from "@/store/cart";
 import { Logo } from "@/components/site/Logo";
+import LanguageSwitcher from "@/components/site/LanguageSwitcher";
 import { useHydrated } from "@/lib/hooks";
-import { content } from "@/lib/content";
+import type { Dictionary, Locale } from "@/lib/i18n/dictionaries";
 import { cx } from "@/lib/format";
 
-const links = [
-  { href: "#lugu", label: content.nav.story },
-  { href: "#puramiid", label: content.nav.pyramid },
-  { href: "#toode", label: content.nav.product },
-  { href: "#pood", label: content.nav.shop },
-];
+export default function Navigation({ dict, locale }: { dict: Dictionary; locale: Locale }) {
+  const links = [
+    { href: "#lugu", label: dict.nav.story },
+    { href: "#puramiid", label: dict.nav.pyramid },
+    { href: "#toode", label: dict.nav.product },
+    { href: "#pood", label: dict.nav.shop },
+  ];
 
-export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { toggle, count } = useCart();
@@ -75,13 +76,14 @@ export default function Navigation() {
         </div>
 
         <div className="flex items-center gap-4">
+          <LanguageSwitcher current={locale} className="hidden sm:flex" />
           <button
             onClick={toggle}
             className="group relative flex items-center gap-2 rounded-full border border-cream/20 px-4 py-2 text-cream transition-colors hover:border-gold hover:text-gold"
-            aria-label={content.nav.cart}
+            aria-label={dict.nav.cart}
           >
             <span className="font-sans text-[0.64rem] uppercase tracking-luxe">
-              {content.nav.cart}
+              {dict.nav.cart}
             </span>
             <AnimatePresence>
               {itemCount > 0 && (
@@ -101,7 +103,7 @@ export default function Navigation() {
           <button
             className="flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden"
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Menüü"
+            aria-label={dict.nav.menu}
           >
             <span className={cx("h-px w-6 bg-cream transition-all", menuOpen && "translate-y-[3.5px] rotate-45")} />
             <span className={cx("h-px w-6 bg-cream transition-all", menuOpen && "-translate-y-[3.5px] -rotate-45")} />
@@ -127,6 +129,7 @@ export default function Navigation() {
                   {l.label}
                 </button>
               ))}
+              <LanguageSwitcher current={locale} className="pt-4" />
             </div>
           </motion.div>
         )}

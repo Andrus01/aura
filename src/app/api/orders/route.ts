@@ -115,9 +115,9 @@ export async function POST(req: Request) {
       comments: comments?.trim() || null,
       subtotalCents,
       shippingCents,
-      status: useMontonio ? "pending" : "demo",
-      paymentStatus: useMontonio ? "PENDING" : "demo",
-      paymentMethod: useMontonio ? "montonio" : "demo",
+      status: useMontonio ? "pending" : "invoice",
+      paymentStatus: useMontonio ? "PENDING" : "INVOICE",
+      paymentMethod: useMontonio ? "montonio" : "invoice",
       paymentProvider: provider || null,
       shippingCarrier: shippingCarrier || null,
       shippingMethodType: deliveryMethod === "pickup" ? "pickupPoint" : deliveryMethod,
@@ -127,11 +127,11 @@ export async function POST(req: Request) {
     },
   });
 
-  // Demo mode — no payment provider configured
+  // Invoice mode — Montonio paused. Order is placed; an invoice is sent by email.
   if (!useMontonio) {
     return NextResponse.json({
       ok: true,
-      mode: "demo",
+      mode: "invoice",
       reference: order.reference,
       subtotalCents: order.subtotalCents,
       shippingCents: order.shippingCents,
