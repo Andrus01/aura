@@ -32,10 +32,6 @@ export default async function ContactPage() {
             <td>{company.regNr}</td>
           </tr>
           <tr>
-            <th>{p.rows.address}</th>
-            <td>{company.address}</td>
-          </tr>
-          <tr>
             <th>{p.rows.email}</th>
             <td>
               <a href={`mailto:${company.email}`}>{company.email}</a>

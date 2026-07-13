@@ -180,7 +180,7 @@ export const en: Dictionary = {
       intro: "These terms of sale apply to purchase agreements concluded between the Aura & Ood online store (auraood.ee) and customers.",
       blocks: [
         { h2: "1. General" },
-        { p: "The owner and seller of the online store auraood.ee is **{legalName}** (registry code {regNr}), located at {address} (hereinafter the **Seller**)." },
+        { p: "The owner and seller of the online store auraood.ee is **{legalName}** (registry code {regNr}; hereinafter the **Seller**)." },
         { p: "These terms apply to the legal relationship arising between any person (hereinafter the **Customer**) and the Seller when purchasing products. In addition, the relationship is governed by the laws of the Republic of Estonia, including the Law of Obligations Act and the Consumer Protection Act." },
         { p: "The Seller may amend the terms and prices. Each order is governed by the terms in force at the time the order was placed." },
         { h2: "2. Prices" },
@@ -241,7 +241,7 @@ export const en: Dictionary = {
       intro: "Your privacy matters to us. Here we explain what personal data we collect, how we use it and what your rights are.",
       blocks: [
         { h2: "Data controller" },
-        { p: "The controller of personal data is **{legalName}** (registry code {regNr}), {address}. Contact: [{email}](mailto:{email}), {phone}." },
+        { p: "The controller of personal data is **{legalName}** (registry code {regNr}). Contact: [{email}](mailto:{email}), {phone}." },
         { h2: "What data we collect" },
         { ul: ["First and last name;", "Contact details: email address and phone number;", "Delivery details: chosen parcel machine / carrier;", "Order details: products, quantities, amount, time;", "The content of your messages if you contact us."] },
         { p: "We **do not collect or store** your banking data — payment takes place in the secure environment of the payment provider." },
@@ -267,7 +267,6 @@ export const en: Dictionary = {
       rows: {
         name: "Company name",
         reg: "Registry code",
-        address: "Address",
         email: "Email",
         phone: "Phone",
         vat: "VAT",

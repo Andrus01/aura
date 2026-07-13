@@ -78,7 +78,7 @@ export default function LegalLayout({
 
           <div className="mt-16 border-t border-cream/10 pt-8">
             <p className="font-sans text-[0.8rem] leading-relaxed text-cream/50">
-              {company.legalName} · {company.regNr} · {company.address}
+              {company.legalName} · {company.regNr}
               <br />
               {company.email} · {company.phone}
             </p>

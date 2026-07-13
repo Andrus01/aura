@@ -179,7 +179,7 @@ export const et = {
       intro: "Käesolevad müügitingimused kehtivad Aura & Ood e-poe (auraood.ee) ja klientide vahel sõlmitavatele ostu-müügilepingutele.",
       blocks: [
         { h2: "1. Üldsätted" },
-        { p: "E-poe auraood.ee omanik ja müüja on **{legalName}** (registrikood {regNr}), asukohaga {address} (edaspidi **Müüja**)." },
+        { p: "E-poe auraood.ee omanik ja müüja on **{legalName}** (registrikood {regNr}; edaspidi **Müüja**)." },
         { p: "Müügitingimused kehtivad kõikide isikute (edaspidi **Klient**) ja Müüja vahel e-poes toodete ostmisel tekkivate õigussuhete kohta. Lisaks käesolevatele tingimustele reguleerivad õigussuhteid Eesti Vabariigis kehtivad õigusaktid, sh võlaõigusseadus ja tarbijakaitseseadus." },
         { p: "Müüjal on õigus müügitingimusi ja hindu muuta. Tellimuse suhtes kehtivad tingimused, mis olid jõus tellimuse vormistamise hetkel." },
         { h2: "2. Hinnad" },
@@ -240,7 +240,7 @@ export const et = {
       intro: "Sinu privaatsus on meile oluline. Siin selgitame, milliseid isikuandmeid kogume, milleks neid kasutame ja millised on Sinu õigused.",
       blocks: [
         { h2: "Vastutav töötleja" },
-        { p: "Isikuandmete vastutav töötleja on **{legalName}** (registrikood {regNr}), {address}. Kontakt: [{email}](mailto:{email}), {phone}." },
+        { p: "Isikuandmete vastutav töötleja on **{legalName}** (registrikood {regNr}). Kontakt: [{email}](mailto:{email}), {phone}." },
         { h2: "Milliseid andmeid kogume" },
         { ul: ["Ees- ja perekonnanimi;", "Kontaktandmed: e-posti aadress ja telefoninumber;", "Tarneandmed: valitud pakiautomaat / vedaja;", "Tellimuse andmed: tooted, kogused, summa, aeg;", "Suhtluse sisu, kui võtad meiega ühendust."] },
         { p: "Me **ei kogu ega säilita** Sinu pangaandmeid — makse toimub makseteenuse pakkuja turvalises keskkonnas." },
@@ -266,7 +266,6 @@ export const et = {
       rows: {
         name: "Ärinimi",
         reg: "Registrikood",
-        address: "Aadress",
         email: "E-post",
         phone: "Telefon",
         vat: "Käibemaks",
